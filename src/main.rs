@@ -63,11 +63,11 @@ async fn accept_connection(stream: TcpStream) {
                     .expect("Failed to send pong :(");
             }
             Message::Pong(_) => {
-                println!("Received pong from: {}?", addr)
+                println!("Received pong from: {}?", addr);
                 write
                     .send(Message::Ping("Ping".into()))
                     .await
-                    .expect("Failed to send ping :<")
+                    .expect("Failed to send ping :<");
             }
             // I still don't know what frames are, so this may be thrown out until i find something
             Message::Frame(_) => {
