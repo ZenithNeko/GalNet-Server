@@ -40,22 +40,39 @@ async fn accept_connection(stream: TcpStream) {
 
     let (mut write, mut read) = ws_stream.split();
 
-    // yes this is a if else else statement, i know its not gonna be good. I only made it like this for the sake of my sanity. Anyway-
     // this is where more of the magic happens.
     //Thanks to the Message enums, you can have different messages like text, binary, closing, pings or pongs!
-    // As you can see here, it will filter out if its a closing or a ping message. If its neither, it will try to display the message anyway.
     
     while let Some(message) = read.next().await {
         let message = message.expect("Failed to read :<");
-        if message.is_ping(){
-            write.send(Message::Pong("Pong!".into())).await.expect("Failed to reply to ping");
-            println!("Received ping! Replying with pong!");
-        }
-        else if message.is_close(){
-            println!("Received closing connection!");
-        }
-        else {
-            println!("Received message: {}", message);
+        match message {
+            Message::Close(_) => {
+                println!("Closing connection to: {}", addr)
+            }
+            Message::Text(_) => {
+                println!("Received Message from {addr}: {}", message)
+            }
+            Message::Binary(_) => {
+                println!("Received Binary from {addr}: {}", message)
+            }
+            Message::Ping(_) => {
+                println!("Received ping from: {}", addr);
+                write
+                    .send(Message::Pong("Pong!".into()))
+                    .await
+                    .expect("Failed to send pong :(");
+            }
+            Message::Pong(_) => {
+                println!("Received pong from: {}?", addr)
+                write
+                    .send(Message::Ping("Ping".into()))
+                    .await
+                    .expect("Failed to send ping :<")
+            }
+            // I still don't know what frames are, so this may be thrown out until i find something
+            Message::Frame(_) => {
+                println!("Received frame: {}", message)
+            }
         }
     }
 }
