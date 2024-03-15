@@ -69,7 +69,7 @@ async fn accept_connection(stream: TcpStream) {
                     .await
                     .expect("Failed to send ping :<");
             }
-            // I still don't know what frames are, so this may be thrown out until i find something
+            // I still don't know what frames are, so this may be thrown out unless i find something
             Message::Frame(_) => {
                 println!("Received frame: {}", message)
             }
